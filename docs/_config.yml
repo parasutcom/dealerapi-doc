@@ -1,1 +1,1908 @@
 theme: jekyll-theme-cayman
+swagger: '2.0'
+info:
+  description: > 
+    ## API Hakkında
+
+    - Dökümantasyon oluşturulmasında OpenAPI-Swagger 2.0 kullandık.
+
+
+    - API hizmetimizin `BASE_URL`i `http://dealerapi.parasut.com/` şeklindedir.
+    
+    - V1 endpointlerine ulaşmak için `http://dealerapi.parasut.com/v1` şeklinde
+    kullanabilirsiniz.
+    
+    - Sandbox ortamı için `http://abone-test.parasut.com/v1` URL ini kullanabilirsiniz
+
+    ## Genel Bilgiler
+
+    - API methodlarına erişmek için iki baz URL bulunuyor.
+    
+      - `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için `http://dealerapi.parasut.com/v1/ana_bayi_no` 
+      
+      - `ALT BAYİ İŞLEMLERİ` başlığı altındaki istekler için ise `http://dealerapi.parasut.com/v1/ana_bayi_no/alt_bayi_no` URL leri kullanılmalıdır.
+      
+      - Örneğin 128 numaralı ana bayiye bağlı alt bayilerin listesine erişmek için `http://dealerapi.parasut.com/v1/128/sub_dealers` adresi kullanılır.
+      
+      - Örneğin 128 numaralı ana bayiye bağlı 170 numaralı alt bayinin satış yapmak için veya satış yaptığı şirketlerin listesine ulaşmak için `http://dealerapi.parasut.com/v1/128/170/companies` adresi kullanılır.
+      
+      - Eğer tek bir bayi üzerinden sistemi kurgulayacaksanız; ana bayi sisteme tanımlandıktan sonra size verdiğimiz `api_key` üzerinden alt bayiyi de aynı bilgiler ile oluşturmanız ve istekleri yaparken ana ve alt bayinin id lerini birlikte yollamanız gerekmektedir
+
+
+    - İstekleri gönderirken `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için ana bayi için verilen `api_key`, `ALT BAYİ İŞLEMLERİ` başlığı altındaki istekler için alt bayiye ait `api_key` değerini, `Authorization` header'ı olarak api_key şeklinde api_key anahtarında yollamanız gerekmektedir.
+    
+    - Yeni bir kayıt oluştururken ilgili kaydın ID parametresini boş göndermeli veya hiç göndermemelisiniz.
+  version: 1.0.0
+  title: Paraşüt Dealer API
+
+# tags are used for organizing operations
+x-tagGroups:
+  - name: Ana Bayi İşlemleri
+    tags:
+      - Alt Bayi
+  - name: Alt Bayi İşlemleri
+    tags:
+      - Leads
+      - Şirket
+  - name: Üyelik İşlemleri
+    tags:
+      - Ürün
+      - Paket
+
+paths:
+  /{main_dealer_id}/sub_dealers:
+    get:
+      tags:
+      - Alt Bayi
+      summary: Index
+      operationId: listSubDealers
+      description: |
+        Ana bayi olarak size bağlı olan tüm alt bayileri listeleyebilirsiniz
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - in: query
+        name: page[number]
+        description: pagination yakında eklenecek
+        type: integer
+        format: int32
+        default: 1
+      - in: query
+        name: page[size]
+        description: page size yakında eklenecek
+        type: integer
+        format: int32
+        default: 15
+      - in: query
+        name: sort
+        description: sorting yakında eklenecek
+        type: string
+        format: string
+        default: "id"
+      responses:
+        200:
+          description: Alt Bayiler
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Dealer'
+              meta:
+                $ref: ''
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+    post:
+      tags:
+      - Alt Bayi
+      summary: Create
+      operationId: createSubDealers
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_form
+        schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - sub_delaers
+                  attributes:
+                    $ref: '#/definitions/SubDealerCreateItem'
+                  relationships:
+                    type: object
+                    properties:
+                      plans:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  maxLength: 255
+                                type:
+                                  type: string
+                                  maxLength: 255
+                                  description: Type of the resource
+                                  enum:
+                                    - plans
+                      products:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  maxLength: 255
+                                type:
+                                  type: string
+                                  maxLength: 255
+                                  description: Type of the resource
+                                  enum:
+                                    - products
+        in: body
+        required: true
+      responses:
+        201:
+          description: Alt Bayi
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Dealer'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/sub_dealers/{sub_dealer_id}:
+    get:
+      tags:
+      - Alt Bayi
+      summary: Show
+      operationId: showSubDealer
+      description:
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Alt Bayi
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Dealer'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+    put:
+      tags:
+      - Alt Bayi
+      summary: Edit
+      operationId: updateSubDealers
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_form
+        schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - sub_delaers
+                  attributes:
+                    $ref: '#/definitions/SubDealerCreateItem'
+                  relationships:
+                    type: object
+                    properties:
+                      plans:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  maxLength: 255
+                                type:
+                                  type: string
+                                  maxLength: 255
+                                  description: Type of the resource
+                                  enum:
+                                    - plans
+                      products:
+                        type: object
+                        properties:
+                          data:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  maxLength: 255
+                                type:
+                                  type: string
+                                  maxLength: 255
+                                  description: Type of the resource
+                                  enum:
+                                    - products
+        in: body
+        required: true
+      responses:
+        200:
+          description: Alt Bayi
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Dealer'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/dealer_leads:
+    get:
+      tags:
+      - Leads
+      summary: Index
+      operationId: listDealerLeads
+      description: |
+        Davet ettiğiniz tüm müşterilerinizi listeleyebilirsiniz
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - in: query
+        name: page[number]
+        description: pagination yakında eklenecek
+        type: integer
+        format: int32
+        default: 1
+      - in: query
+        name: page[size]
+        description: page size yakında eklenecek
+        type: integer
+        format: int32
+        default: 15
+      - in: query
+        name: sort
+        description: sorting yakında eklenecek
+        type: string
+        format: string
+        default: "id"
+      responses:
+        200:
+          description: Leads
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/DealerLead'
+              meta:
+                $ref: ''
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+    post:
+      tags:
+      - Leads
+      summary: Create
+      operationId: createDealerLeads
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - name: dealer_lead_form
+        schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - dealer_leads
+                  attributes:
+                    $ref: '#/definitions/DealerLeadCreateItem'
+                  relationships:
+                    type: object
+                    properties:
+                      plan:
+                        type: object
+                        properties:
+                          data:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                maxLength: 255
+                              type:
+                                type: string
+                                maxLength: 255
+                                description: Type of the resource
+                                enum:
+                                  - plans
+        in: body
+        required: true
+      responses:
+        201:
+          description: Lead
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/DealerLead'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/dealer_leads/{id}:
+    get:
+      tags:
+      - Leads
+      summary: Show
+      operationId: showDealerLead
+      description:
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Lead ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Lead
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/DealerLead'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/dealer_leads/{id}/resend_invitation:
+    patch:
+      tags:
+      - Leads
+      summary: Resend
+      operationId: resendDealerLeadInvitation
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Lead ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Lead
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/DealerLead'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies:
+    get:
+      tags:
+      - Şirket
+      summary: Index
+      operationId: listCompanies
+      description:
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - in: query
+        name: page[number]
+        description: pagination yakında eklenecek
+        type: integer
+        format: int32
+        default: 1
+      - in: query
+        name: page[size]
+        description: page size yakında eklenecek
+        type: integer
+        format: int32
+        default: 15
+      - in: query
+        name: sort
+        description: sorting yakında eklenecek
+        type: string
+        format: string
+        default: "id"
+      responses:
+        200:
+          description: Şirketler
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/Company'
+              meta:
+                $ref: ''
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/{id}:
+    get:
+      tags:
+      - Şirket
+      summary: Show
+      operationId: showCompany
+      description:
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Şirket ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Şirket
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Company'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/{id}/sales:
+    post:
+      tags:
+      - Şirket
+      summary: Satış
+      operationId: sales
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Şirket ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - name: transaction_form
+        schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - plans
+                  attributes:
+                    $ref: '#/definitions/PlanItem'
+        in: body
+        required: true
+      responses:
+        201:
+          description: İşlem
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/DealerTransaction'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/{id}/refunds:
+    post:
+      tags:
+      - Şirket
+      summary: İade
+      operationId: refunds
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Şirket ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - name: transaction_form
+        schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - dealer_transactions
+                  attributes:
+                    $ref: '#/definitions/DealerRefundTransactionItem'
+        in: body
+        required: true
+      responses:
+        201:
+          description: Şirket
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Company'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/{id}/disable_e_invoice_integrations:
+    patch:
+      tags:
+      - Şirket
+      summary: E-hizmet İptal
+      operationId: disableEInvoice
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Şirket ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Şirket
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Company'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/{id}/change_selected_plan:
+    patch:
+      tags:
+      - Şirket
+      summary: Yenileme Paketi Güncelleme
+      operationId: changeSelectedPlan
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Şirket ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - name: plan_form
+        schema:
+          $ref: '#/definitions/changeSelectedPlan'
+        in: body
+      responses:
+        200:
+          description: Şirket
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Company'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/products:
+    get:
+      tags:
+      - Ürün
+      summary: Index
+      operationId: listProducts
+      description: |
+        Tanımladığınız alt bayinin satabileceği ürünleri listeleyebilirisiniz
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Ürünler
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Product'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/plans:
+    get:
+      tags:
+      - Paket
+      summary: Index
+      operationId: listPlans
+      description: |
+        Tanımladığınız alt bayinin satabileceği paketleri listeleyebilirisiniz
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Paketler
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Plan'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+definitions:
+  Error:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+  SubDealerCreateItem:
+    type: object
+    required:
+    - is_company
+    - officer_name
+    - legal_name
+    - email
+    - tax_number
+    - tax_office
+    - address
+    - city
+    - district
+
+    properties:
+      is_company:
+        type: boolean
+      officer_name:
+        type: string
+      legal_name:
+        type: string
+      email:
+        type: string
+      tax_number:
+        type: string
+      tax_office:
+        type: string
+      address:
+        type: string
+      city:
+        type: string
+      district:
+        type: string
+  Dealer:
+    type: object
+    properties:
+      id:
+        type: string
+        maxLength: 255
+      type:
+        type: string
+        maxLength: 255
+        description: Type of the resource
+        enum:
+          - sub_dealers
+      attributes:
+        $ref: '#/definitions/DealerItem'
+      relationships:
+        type: object
+        properties:
+          plans:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      maxLength: 255
+                    type:
+                      type: string
+                      maxLength: 255
+                      description: Type of the resource
+                      enum:
+                        - plans
+          product:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      maxLength: 255
+                    type:
+                      type: string
+                      maxLength: 255
+                      description: Type of the resource
+                      enum:
+                        - products
+    required:
+      - attributes
+  DealerItem:
+    type: object
+    properties:
+      officer_name:
+        type: string
+      legal_name:
+        type: string
+      tax_number:
+        type: string
+      status:
+        example: active || inactive
+        type: string
+      sales_model:
+        example: reseller || bundle || partner
+        type: string
+  DealerLeadCreateItem:
+    type: object
+    required:
+    - lead_email
+    - subscription_type
+
+    properties:
+      lead_email:
+        type: string
+      subscription_type:
+        type: string
+        enum:
+          - in_trial 
+          - subscription
+  DealerLead:
+    type: object
+    properties:
+      id:
+        type: string
+        maxLength: 255
+      type:
+        type: string
+        maxLength: 255
+        description: Type of the resource
+        enum:
+          - dealer_leads
+      attributes:
+        $ref: '#/definitions/DealerLeadItem'
+      relationships:
+        type: object
+        properties:
+          plan:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - plans
+    required:
+      - attributes
+  DealerLeadItem:
+    type: object
+    required:
+    - plan_id
+    - lead_email
+    - subscription_type
+    properties:
+      company_id:
+        type: string
+      lead_email:
+        type: string
+      subscription_type:
+        type: string
+        example: in_trial || subscription
+      status:
+        type: string
+        example: invited
+      code:
+        type: string
+  CompanyUpdateWithEmail:
+    type: object
+    required:
+    - email
+    properties:
+      email:
+        type: string
+  Company:
+    type: object
+    properties:
+      id:
+        type: string
+        maxLength: 255
+      type:
+        type: string
+        maxLength: 255
+        description: Type of the resource
+        enum:
+          - companies
+      attributes:
+        $ref: '#/definitions/CompanyItem'
+    required:
+      - attributes
+  CompanyItem:
+    type: object
+    required:
+    - owner_id
+    - name
+    - legal_name
+    - tax_number
+    - tax_office
+    - campaign
+    - credit_balance
+    - selected_plan_id
+    - subscription_status
+    - pricing_list
+    - trial_period
+    - prst_contact_id
+    - owner_email
+    - e_invoicing_enabled
+    - app_type
+    properties:
+      owner_id:
+        type: string
+      name:
+        type: string
+      legal_name:
+        type: string
+      tax_number:
+        type: string
+      tax_office:
+        type: string
+      valid_until:
+        type: string
+        format: date
+        readOnly: true
+      campaign:
+        type: string
+      credit_balance:
+        type: integer
+      selected_plan_id:
+        type: string
+      subscription_status:
+        type: string
+      pricing_list:
+        type: string
+      trial_period:
+        type: string
+      prst_contact_id:
+        type: string
+      owner_email:
+        type: string
+      e_invoicing_enabled:
+        type: string
+      app_type:
+        type: string
+  DealerTransaction:
+    type: object
+    properties:
+      id:
+        type: string
+        maxLength: 255
+      type:
+        type: string
+        maxLength: 255
+        description: Type of the resource
+        enum:
+          - dealer_transactions
+      attributes:
+        $ref: '#/definitions/DealerTransactionItem'
+    required:
+      - attributes
+  DealerTransactionItem:
+    type: object
+    required:
+    - id
+    - type
+    - date
+    - amount
+    - prst_sales_invoice_id
+    - dealer_id
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+      date:
+        type: string
+        format: date
+        readOnly: true
+      amount:
+        type: integer
+      prst_sales_invoice_id:
+        type: string
+      dealer_id:
+        type: string
+  DealerRefundTransactionItem:
+    type: object
+    required:
+    - refunded_transaction_id 
+    - amount
+    - refunded_at
+
+    properties:
+      refunded_transaction_id:
+        type: integer
+      amount:
+        type: integer
+      refunded_at:
+        type: string
+        format: date
+  changeSelectedPlan:
+    type: object
+    required:
+    - plan_id
+    properties:
+      plan_id:
+        type: string
+  Plan:
+    type: object
+    properties:
+      id:
+        type: string
+        maxLength: 255
+      type:
+        type: string
+        maxLength: 255
+        description: Type of the resource
+        enum:
+          - plans
+      attributes:
+        $ref: '#/definitions/PlanItem'
+    required:
+      - attributes
+  PlanItem:
+    type: object
+    required:
+    - id
+    properties:
+      id:
+        type: integer
+        example: 15
+      name:
+        type: string
+      price:
+        type: string
+  Product:
+    type: object
+    properties:
+      id:
+        type: string
+        maxLength: 255
+      type:
+        type: string
+        maxLength: 255
+        description: Type of the resource
+        enum:
+          - plans
+      attributes:
+        $ref: '#/definitions/ProductItem'
+  ProductItem:
+    type: object
+    required:
+    - id
+    properties:
+      id:
+        type: integer
+        example: 15
+      name:
+        type: string
+      owner:
+        type: string
+      status:
+        type: string
+        example: active || passive
+host: dealerapi.parasut.com
+basePath: /v1
+schemes:
+ - https
