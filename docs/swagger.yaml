@@ -1,35 +1,35 @@
 swagger: '2.0'
 info:
-  description: > 
+  description: >
     ## API Hakkında
 
     - Dökümantasyon oluşturulmasında OpenAPI-Swagger 2.0 kullandık.
 
 
-    - API hizmetimizin `BASE_URL`i `http://dealerapi.parasut.com/` şeklindedir.
-    
-    - V1 endpointlerine ulaşmak için `http://dealerapi.parasut.com/v1` şeklinde
+    - API hizmetimizin `BASE_URL`i `https://dealerapi.parasut.com/` şeklindedir.
+
+    - V1 endpointlerine ulaşmak için `https://dealerapi.parasut.com/v1` şeklinde
     kullanabilirsiniz.
-    
-    - Sandbox ortamı için `http://abone-test.parasut.com/v1` URL ini kullanabilirsiniz
+
+    - Sandbox ortamı için `https://abone-test.parasut.com/v1` URL ini kullanabilirsiniz
 
     ## Genel Bilgiler
 
     - API methodlarına erişmek için iki baz URL bulunuyor.
-    
-      - `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için `http://dealerapi.parasut.com/v1/ana_bayi_no` 
-      
+
+      - `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için `http://dealerapi.parasut.com/v1/ana_bayi_no`
+
       - `ALT BAYİ İŞLEMLERİ` başlığı altındaki istekler için ise `http://dealerapi.parasut.com/v1/ana_bayi_no/alt_bayi_no` URL leri kullanılmalıdır.
-      
+
       - Örneğin 128 numaralı ana bayiye bağlı alt bayilerin listesine erişmek için `http://dealerapi.parasut.com/v1/128/sub_dealers` adresi kullanılır.
-      
+
       - Örneğin 128 numaralı ana bayiye bağlı 170 numaralı alt bayinin satış yapmak için veya satış yaptığı şirketlerin listesine ulaşmak için `http://dealerapi.parasut.com/v1/128/170/companies` adresi kullanılır.
-      
+
       - Eğer tek bir bayi üzerinden sistemi kurgulayacaksanız; ana bayi sisteme tanımlandıktan sonra size verdiğimiz `api_key` üzerinden alt bayiyi de aynı bilgiler ile oluşturmanız ve istekleri yaparken ana ve alt bayinin id lerini birlikte yollamanız gerekmektedir
 
 
     - İstekleri gönderirken `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için ana bayi için verilen `api_key`, `ALT BAYİ İŞLEMLERİ` başlığı altındaki istekler için alt bayiye ait `api_key` değerini, `Authorization` header'ı olarak api_key şeklinde api_key anahtarında yollamanız gerekmektedir.
-    
+
     - Yeni bir kayıt oluştururken ilgili kaydın ID parametresini boş göndermeli veya hiç göndermemelisiniz.
   version: 1.0.0
   title: Paraşüt Dealer API
@@ -1651,7 +1651,7 @@ definitions:
       subscription_type:
         type: string
         enum:
-          - in_trial 
+          - in_trial
           - subscription
   DealerLead:
     type: object
@@ -1825,7 +1825,7 @@ definitions:
   DealerRefundTransactionItem:
     type: object
     required:
-    - refunded_transaction_id 
+    - refunded_transaction_id
     - amount
     - refunded_at
 
