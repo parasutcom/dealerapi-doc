@@ -842,6 +842,86 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/dealer_leads/{id}/cancel_invitation:
+    patch:
+      tags:
+      - Leads
+      summary: Cancel
+      operationId: cancelDealerLeadInvitation
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Lead ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Lead
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/DealerLead'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
   /{main_dealer_id}/{sub_dealer_id}/companies:
     get:
       tags:
@@ -1123,7 +1203,7 @@ paths:
       - Şirket
       summary: İade
       operationId: refunds
-      description:
+      description: <b>attributes</b> parametresi optional değerdir, göndermediğiniz takdirde son transaction iade edilir.
       consumes:
       - application/json
       produces:
@@ -1727,6 +1807,24 @@ definitions:
           - companies
       attributes:
         $ref: '#/definitions/CompanyItem'
+      relationships:
+        type: object
+        properties:
+          transactions:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - transaction
     required:
       - attributes
   CompanyItem:
