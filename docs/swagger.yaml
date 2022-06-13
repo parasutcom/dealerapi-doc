@@ -1733,6 +1733,12 @@ definitions:
         enum:
           - in_trial
           - subscription
+      access:
+        type: string
+        enum:
+          - na
+          - ro
+          - wr
   DealerLead:
     type: object
     properties:
@@ -1786,6 +1792,9 @@ definitions:
         example: invited
       code:
         type: string
+      access:
+        type: string
+        example: na || ro || wr
   CompanyUpdateWithEmail:
     type: object
     required:
