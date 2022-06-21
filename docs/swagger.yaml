@@ -1631,6 +1631,7 @@ definitions:
     - address
     - city
     - district
+    - status
 
     properties:
       is_company:
@@ -1650,6 +1651,8 @@ definitions:
       city:
         type: string
       district:
+        type: string
+      status:
         type: string
   Dealer:
     type: object
@@ -1733,6 +1736,12 @@ definitions:
         enum:
           - in_trial
           - subscription
+      access:
+        type: string
+        enum:
+          - na
+          - ro
+          - wr
   DealerLead:
     type: object
     properties:
@@ -1786,6 +1795,9 @@ definitions:
         example: invited
       code:
         type: string
+      access:
+        type: string
+        example: na || ro || wr
   CompanyUpdateWithEmail:
     type: object
     required:
