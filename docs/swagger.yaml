@@ -1741,7 +1741,7 @@ definitions:
         enum:
           - na
           - ro
-          - wr
+          - rw
   DealerLead:
     type: object
     properties:
@@ -1797,7 +1797,7 @@ definitions:
         type: string
       access:
         type: string
-        example: na || ro || wr
+        example: na || ro || rw
   CompanyUpdateWithEmail:
     type: object
     required:
