@@ -31,6 +31,26 @@ info:
     - İstekleri gönderirken `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için ana bayi için verilen `api_key`, `ALT BAYİ İŞLEMLERİ` başlığı altındaki istekler için alt bayiye ait `api_key` değerini, `Authorization` header'ı olarak api_key şeklinde api_key anahtarında yollamanız gerekmektedir.
 
     - Yeni bir kayıt oluştururken ilgili kaydın ID parametresini boş göndermeli veya hiç göndermemelisiniz.
+
+    ## Sık Kullanılan İşlemler
+    
+    - Dealer Lead Olusturma
+      - Dealer Lead satış yaptığınız ya da satış yapmak üzere Paraşüt ürünlerine yönlendirdiğiniz kullanıcıların bilgilerini API aracılığı ile iletmeniz sonrasında oluşan kayıttır.
+      
+        Burada Dealer Lead olarak tanımlanan kullanıcıya sistem üzerinden bir davet maili gider davet mailininden kullanıcı Paraşüt ürünlerinde sign up sayfasına yönlenir ve hesabını oluşturur.
+        
+        Dealer Lead verisini takip ederek davet ettiğiniz kullanıcının daveti kabul edip etmediğine, olusturdugu şirketin unique id sine ulaşabilirsiniz.
+        
+    - Direkt Şirket Oluşturma
+      - Dealer Lead daveti üzerinden değil direkt olarak Paraşüt ürünlerinde müşterinize bir şirket oluşturmak istiyorsanız; şirket oluşturarak random parola ile müşterinize bir hesap oluşturabilirsiniz. Bu durumda müşteriye Dealer olarak sizin tarafınızdan bir hesap açıldığı bilgisi ve hesabın parolasını belirlemesi için bir mail ulaşır. Müşteri parolasını belirler ve sözleşmelerini onayladıktan sonra hesabına erişmiş olur.
+    
+    - Abonelik Satışı
+      - Satış endpointi üzerinden SubDealer'a tanımlanan paketlerden herhangi birini sizin yarattığınız ya da davet ettiğiniz hesaplara satış işlemi yapabilirsiniz.
+      - Bayi programınıza bağlı olarak bu satışın faturası ya bayi olarak size ya da doğrudan müşteriye kesilebilir.
+      
+    - İade İşlemi
+      - İade işlemini ilgili endpointten yapabilirsiniz
+      - İade işleminde herhangi bir transaction bilgisi gönderilirse gönderilen transactiona bağlı satış, gönderilmezse son satış iade edilir.
   version: 1.0.0
   title: Paraşüt Dealer API
 
