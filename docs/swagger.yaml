@@ -1577,6 +1577,86 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/company/{id}/resend_invitation:
+    patch:
+      tags:
+      - Şirket
+      summary: Resend
+      operationId: resendCompanyInvitation
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: company_id
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Company
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/ResendCompanyInvitationItem'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
   /{main_dealer_id}/{sub_dealer_id}/products:
     get:
       tags:
@@ -2103,6 +2183,16 @@ definitions:
         $ref: '#/definitions/CreateCompanyUserInfoItem'
       company_info:
         $ref: '#/definitions/CreateCompanyCompanyInfoItem'
+  ResendCompanyInvitationItem:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Invitation resend successfully
+      status:
+        type: integer
+        example: 201
+
   CreateCompanyUserInfoItem:
     type: object
     required:
