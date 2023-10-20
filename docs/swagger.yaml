@@ -87,13 +87,13 @@ paths:
         required: true
       - in: query
         name: page[number]
-        description: pagination yakında eklenecek
+        description:
         type: integer
         format: int32
         default: 1
       - in: query
         name: page[size]
-        description: page size yakında eklenecek
+        description: 
         type: integer
         format: int32
         default: 15
@@ -1493,6 +1493,86 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/{id}/resend_invitation:
+    patch:
+      tags:
+      - Şirket
+      summary: Resend
+      operationId: resendCompanyLeadInvitation
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Şirket ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Şirket
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/CreateCompanyItem'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
   /{main_dealer_id}/{sub_dealer_id}/companies/{id}/change_selected_plan:
     patch:
       tags:
@@ -1848,8 +1928,7 @@ definitions:
       subscription_type:
         type: string
         enum:
-          - in_trial
-          - subscription
+          - in_trial || subscription || order
       access:
         type: string
         enum:
@@ -1903,7 +1982,7 @@ definitions:
         type: string
       subscription_type:
         type: string
-        example: in_trial || subscription
+        example: in_trial || subscription || order
       status:
         type: string
         example: invited
@@ -2096,6 +2175,12 @@ definitions:
         type: string
       price:
         type: string
+      dealer_sales_model:
+        type: string
+      can_change_selected_plan:
+        type: boolean
+      status:
+        type: string
   CreateCompanyItem:
     type: object
     properties:
@@ -2136,7 +2221,8 @@ definitions:
         example: Diğer
       subscription_type:
         type: string
-        enum: [in_trial, subscription]
+        enum:
+          - in_trial || subscription || order
       accountant_email:
         type: string
         enum: [ParasutUser, MikroXUser, AsistUser]
