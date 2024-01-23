@@ -1,36 +1,56 @@
 swagger: '2.0'
 info:
-  description: > 
+  description: >
     ## API Hakkında
 
     - Dökümantasyon oluşturulmasında OpenAPI-Swagger 2.0 kullandık.
 
 
-    - API hizmetimizin `BASE_URL`i `http://dealerapi.parasut.com/` şeklindedir.
-    
-    - V1 endpointlerine ulaşmak için `http://dealerapi.parasut.com/v1` şeklinde
+    - API hizmetimizin `BASE_URL`i `https://dealerapi.parasut.com/` şeklindedir.
+
+    - V1 endpointlerine ulaşmak için `https://dealerapi.parasut.com/v1` şeklinde
     kullanabilirsiniz.
-    
-    - Sandbox ortamı için `http://abone-test.parasut.com/v1` URL ini kullanabilirsiniz
+
+    - Sandbox ortamı için `https://abone-test.parasut.com/v1` URL ini kullanabilirsiniz
 
     ## Genel Bilgiler
 
     - API methodlarına erişmek için iki baz URL bulunuyor.
-    
-      - `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için `http://dealerapi.parasut.com/v1/ana_bayi_no` 
-      
+
+      - `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için `http://dealerapi.parasut.com/v1/ana_bayi_no`
+
       - `ALT BAYİ İŞLEMLERİ` başlığı altındaki istekler için ise `http://dealerapi.parasut.com/v1/ana_bayi_no/alt_bayi_no` URL leri kullanılmalıdır.
-      
+
       - Örneğin 128 numaralı ana bayiye bağlı alt bayilerin listesine erişmek için `http://dealerapi.parasut.com/v1/128/sub_dealers` adresi kullanılır.
-      
+
       - Örneğin 128 numaralı ana bayiye bağlı 170 numaralı alt bayinin satış yapmak için veya satış yaptığı şirketlerin listesine ulaşmak için `http://dealerapi.parasut.com/v1/128/170/companies` adresi kullanılır.
-      
+
       - Eğer tek bir bayi üzerinden sistemi kurgulayacaksanız; ana bayi sisteme tanımlandıktan sonra size verdiğimiz `api_key` üzerinden alt bayiyi de aynı bilgiler ile oluşturmanız ve istekleri yaparken ana ve alt bayinin id lerini birlikte yollamanız gerekmektedir
 
 
     - İstekleri gönderirken `ANA BAYİ İŞLEMLERİ` başlığı altındaki istekler için ana bayi için verilen `api_key`, `ALT BAYİ İŞLEMLERİ` başlığı altındaki istekler için alt bayiye ait `api_key` değerini, `Authorization` header'ı olarak api_key şeklinde api_key anahtarında yollamanız gerekmektedir.
-    
+
     - Yeni bir kayıt oluştururken ilgili kaydın ID parametresini boş göndermeli veya hiç göndermemelisiniz.
+
+    ## Sık Kullanılan İşlemler
+    
+    - Dealer Lead Olusturma
+      - Dealer Lead satış yaptığınız ya da satış yapmak üzere Paraşüt ürünlerine yönlendirdiğiniz kullanıcıların bilgilerini API aracılığı ile iletmeniz sonrasında oluşan kayıttır.
+      
+        Burada Dealer Lead olarak tanımlanan kullanıcıya sistem üzerinden bir davet maili gider davet mailininden kullanıcı Paraşüt ürünlerinde sign up sayfasına yönlenir ve hesabını oluşturur.
+        
+        Dealer Lead verisini takip ederek davet ettiğiniz kullanıcının daveti kabul edip etmediğine, olusturdugu şirketin unique id sine ulaşabilirsiniz.
+        
+    - Direkt Şirket Oluşturma
+      - Dealer Lead daveti üzerinden değil direkt olarak Paraşüt ürünlerinde müşterinize bir şirket oluşturmak istiyorsanız; şirket oluşturarak random parola ile müşterinize bir hesap oluşturabilirsiniz. Bu durumda müşteriye Dealer olarak sizin tarafınızdan bir hesap açıldığı bilgisi ve hesabın parolasını belirlemesi için bir mail ulaşır. Müşteri parolasını belirler ve sözleşmelerini onayladıktan sonra hesabına erişmiş olur.
+    
+    - Abonelik Satışı
+      - Satış endpointi üzerinden SubDealer'a tanımlanan paketlerden herhangi birini sizin yarattığınız ya da davet ettiğiniz hesaplara satış işlemi yapabilirsiniz.
+      - Bayi programınıza bağlı olarak bu satışın faturası ya bayi olarak size ya da doğrudan müşteriye kesilebilir.
+      
+    - İade İşlemi
+      - İade işlemini ilgili endpointten yapabilirsiniz
+      - İade işleminde herhangi bir transaction bilgisi gönderilirse gönderilen transactiona bağlı satış, gönderilmezse son satış iade edilir.
   version: 1.0.0
   title: Paraşüt Dealer API
 
@@ -67,13 +87,13 @@ paths:
         required: true
       - in: query
         name: page[number]
-        description: pagination yakında eklenecek
+        description:
         type: integer
         format: int32
         default: 1
       - in: query
         name: page[size]
-        description: page size yakında eklenecek
+        description: 
         type: integer
         format: int32
         default: 15
@@ -842,6 +862,86 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/dealer_leads/{id}/cancel_invitation:
+    patch:
+      tags:
+      - Leads
+      summary: Cancel
+      operationId: cancelDealerLeadInvitation
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Lead ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Lead
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/DealerLead'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
   /{main_dealer_id}/{sub_dealer_id}/companies:
     get:
       tags:
@@ -1015,6 +1115,100 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/create:
+    post:
+      tags:
+      - Şirket
+      summary: Create
+      operationId: create
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      - name: company_form
+        schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - companies
+                  attributes:
+                    $ref: '#/definitions/CreateCompanyItem'
+        in: body
+        required: true
+      responses:
+        201:
+          description: İşlem
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/Company'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
   /{main_dealer_id}/{sub_dealer_id}/companies/{id}/sales:
     post:
       tags:
@@ -1123,7 +1317,7 @@ paths:
       - Şirket
       summary: İade
       operationId: refunds
-      description:
+      description: <b>attributes</b> parametresi optional değerdir, göndermediğiniz takdirde son transaction iade edilir.
       consumes:
       - application/json
       produces:
@@ -1254,6 +1448,86 @@ paths:
             properties:
               data:
                 $ref: '#/definitions/Company'
+        400:
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        404:
+          description: Not Found
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+        422:
+          description: Unprocessable Entity
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+  /{main_dealer_id}/{sub_dealer_id}/companies/{id}/resend_invitation:
+    patch:
+      tags:
+      - Şirket
+      summary: Resend
+      operationId: resendCompanyLeadInvitation
+      description:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        type: integer
+        description: Şirket ID
+        in: path
+        required: true
+      - name: main_dealer_id
+        type: integer
+        description: Ana Bayi ID
+        in: path
+        required: true
+      - name: sub_dealer_id
+        type: integer
+        description: Alt Bayi ID
+        in: path
+        required: true
+      responses:
+        200:
+          description: Şirket
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/definitions/CreateCompanyItem'
         400:
           description: Bad Request
           schema:
@@ -1551,6 +1825,7 @@ definitions:
     - address
     - city
     - district
+    - status
 
     properties:
       is_company:
@@ -1570,6 +1845,8 @@ definitions:
       city:
         type: string
       district:
+        type: string
+      status:
         type: string
   Dealer:
     type: object
@@ -1651,8 +1928,13 @@ definitions:
       subscription_type:
         type: string
         enum:
-          - in_trial 
-          - subscription
+          - in_trial || subscription || order
+      access:
+        type: string
+        enum:
+          - na
+          - ro
+          - rw
   DealerLead:
     type: object
     properties:
@@ -1700,12 +1982,15 @@ definitions:
         type: string
       subscription_type:
         type: string
-        example: in_trial || subscription
+        example: in_trial || subscription || order
       status:
         type: string
         example: invited
       code:
         type: string
+      access:
+        type: string
+        example: na || ro || rw
   CompanyUpdateWithEmail:
     type: object
     required:
@@ -1727,6 +2012,24 @@ definitions:
           - companies
       attributes:
         $ref: '#/definitions/CompanyItem'
+      relationships:
+        type: object
+        properties:
+          transactions:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 255
+                  type:
+                    type: string
+                    maxLength: 255
+                    description: Type of the resource
+                    enum:
+                      - transaction
     required:
       - attributes
   CompanyItem:
@@ -1825,7 +2128,7 @@ definitions:
   DealerRefundTransactionItem:
     type: object
     required:
-    - refunded_transaction_id 
+    - refunded_transaction_id
     - amount
     - refunded_at
 
@@ -1872,6 +2175,64 @@ definitions:
         type: string
       price:
         type: string
+      dealer_sales_model:
+        type: string
+      can_change_selected_plan:
+        type: boolean
+      status:
+        type: string
+  CreateCompanyItem:
+    type: object
+    properties:
+      user_info:
+        $ref: '#/definitions/CreateCompanyUserInfoItem'
+      company_info:
+        $ref: '#/definitions/CreateCompanyCompanyInfoItem'
+  CreateCompanyUserInfoItem:
+    type: object
+    required:
+    - name
+    - email
+    - phone
+    - type
+    properties:
+      name:
+        type: string
+        example: Owner name
+      email:
+        type: string
+        example: owner@email.com
+      phone:
+        type: string
+      type:
+        type: string
+        enum: [ParasutUser, MikroXUser, AsistUser]
+  CreateCompanyCompanyInfoItem:
+    type: object
+    required:
+    - name
+    - subscription_type
+    properties:
+      name:
+        type: string
+        example: Company Legal name
+      occupation_field:
+        type: string
+        example: Diğer
+      subscription_type:
+        type: string
+        enum:
+          - in_trial || subscription || order
+      accountant_email:
+        type: string
+        enum: [ParasutUser, MikroXUser, AsistUser]
+      access:
+        type: string
+        enum: [ro, rw]
+      plan_id:
+        type: integer
+      operator_id:
+        type: integer
   Product:
     type: object
     properties:
