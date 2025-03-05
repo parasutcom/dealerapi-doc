@@ -114,7 +114,20 @@ paths:
                 items:
                   $ref: '#/definitions/Dealer'
               meta:
-                $ref: ''
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                  next_page:
+                    type: integer
+                    nullable: true
+                  prev_page:
+                    type: integer
+                    nullable: true
+                  total_pages:
+                    type: integer
+                  total_count:
+                    type: integer
         400:
           description: Bad Request
           schema:
@@ -544,7 +557,25 @@ paths:
                 items:
                   $ref: '#/definitions/DealerLead'
               meta:
-                $ref: ''
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  next_page:
+                    type: integer
+                    example: 2
+                    nullable: true
+                  prev_page:
+                    type: integer
+                    example: 3
+                    nullable: true
+                  total_pages:
+                    type: integer
+                    example: 4
+                  total_count:
+                    type: integer
+
         400:
           description: Bad Request
           schema:
@@ -991,7 +1022,18 @@ paths:
                 items:
                   $ref: '#/definitions/Company'
               meta:
-                $ref: ''
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                  next_page:
+                    type: integer
+                  prev_page:
+                    type: integer
+                  total_pages:
+                    type: integer
+                  total_count:
+                    type: integer
         400:
           description: Bad Request
           schema:
@@ -1070,6 +1112,19 @@ paths:
             properties:
               data:
                 $ref: '#/definitions/Company'
+              meta:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                  next_page:
+                    type: integer
+                  prev_page:
+                    type: integer
+                  total_pages:
+                    type: integer
+                  total_count:
+                    type: integer
         400:
           description: Bad Request
           schema:
@@ -1154,6 +1209,19 @@ paths:
                       - companies
                   attributes:
                     $ref: '#/definitions/CreateCompanyItem'
+              meta:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                  next_page:
+                    type: integer
+                  prev_page:
+                    type: integer
+                  total_pages:
+                    type: integer
+                  total_count:
+                    type: integer
         in: body
         required: true
       responses:
@@ -1163,7 +1231,7 @@ paths:
             type: object
             properties:
               data:
-                $ref: '#/definitions/Company'
+                $ref: '#/definitions/CreatedCompany'
         400:
           description: Bad Request
           schema:
@@ -1865,7 +1933,19 @@ definitions:
       relationships:
         type: object
         properties:
-          plans:
+          dealer_application:
+            type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                    enum:
+                      - dealer_application
+          dealer_leads:
             type: object
             properties:
               data:
@@ -1875,14 +1955,11 @@ definitions:
                   properties:
                     id:
                       type: string
-                      maxLength: 255
                     type:
                       type: string
-                      maxLength: 255
-                      description: Type of the resource
                       enum:
-                        - plans
-          product:
+                        - dealer_lead
+          dealer_companies:
             type: object
             properties:
               data:
@@ -1892,13 +1969,19 @@ definitions:
                   properties:
                     id:
                       type: string
-                      maxLength: 255
                     type:
                       type: string
-                      maxLength: 255
-                      description: Type of the resource
                       enum:
-                        - products
+                        - company
+      meta:
+        type: object
+        properties:
+          created_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
     required:
       - attributes
   DealerItem:
@@ -1916,6 +1999,60 @@ definitions:
       sales_model:
         example: reseller || bundle || partner
         type: string
+      invoice_description:
+        example: "İrsaliye Notu"
+        type: string
+      created_at:
+        example: 2021-01-01T00:00:00Z
+        type: string
+      updated_at:
+        example: 2021-01-01T00:00:00Z
+        type: string
+      plans:
+        type: object
+        properties:
+          data:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - plan
+                attributes:
+                  type: object
+                  properties:
+                    created_at:
+                      type: string
+                      format: date-time
+                    updated_at:
+                      type: string
+                      format: date-time
+                    name:
+                      type: string
+                    price:
+                      type: string
+                    dealer_sales_model:
+                      type: string
+                      nullable: true
+                    can_change_selected_plan:
+                      type: boolean
+                    status:
+                      type: string
+                    product:
+                      type: string
+                meta:
+                  type: object
+                  properties:
+                    created_at:
+                      type: string
+                      format: date-time
+                    updated_at:
+                      type: string
+                      format: date-time
   DealerLeadCreateItem:
     type: object
     required:
@@ -1967,6 +2104,15 @@ definitions:
                     description: Type of the resource
                     enum:
                       - plans
+          meta:
+            type: object
+            properties:
+              created_at:
+                type: string
+                format: date-time
+              updated_at:
+                type: string
+                format: date-time
     required:
       - attributes
   DealerLeadItem:
@@ -1990,7 +2136,84 @@ definitions:
         type: string
       access:
         type: string
-        example: na || ro || rw
+        example: na || ro || rw
+      created_at:
+        type: string
+        example: 2021-01-01T00:00:00Z
+      updated_at:
+        type: string
+        example: 2021-01-01T00:00:00Z
+      plan_id:
+        type: string
+        example: 15
+      accountant_email:
+        type: string
+        example: accountant@email.com
+      operator_id:
+        type: string
+        example: 1
+      phone:
+        type: string
+        example: 05555555555
+      product:
+        type: string
+        example: parasut
+      plan:
+        type: object
+        properties:
+          data:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+                enum:
+                  - plan
+              attributes:
+                type: object
+                properties:
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+                  name:
+                    type: string
+                  price:
+                    type: string
+                  dealer_sales_model:
+                    type: string
+                    nullable: true
+                  can_change_selected_plan:
+                    type: boolean
+                  status:
+                    type: string
+                    enum:
+                      - active
+                      - passive
+                  product:
+                    type: string
+              meta:
+                type: object
+                properties:
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+      primary_subscription_renewal_date:
+        type: string
+        example: 2026-03-04
+      primary_subscription_status:
+        type: string
+        example: active
+      primary_trial_status:
+        type: string
+        example: active
+
   CompanyUpdateWithEmail:
     type: object
     required:
@@ -2019,20 +2242,171 @@ definitions:
             type: object
             properties:
               data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    type:
+                      type: string
+                      enum:
+                        - transaction
+      meta:
+        type: object
+        properties:
+          created_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
+    required:
+      - attributes
+  CreatedCompany:
+    type: object
+    properties:
+      id:
+        type: string
+        maxLength: 255
+      type:
+        type: string
+        maxLength: 255
+        description: Type of the resource
+        enum:
+          - companies
+      attributes:
+        $ref: '#/definitions/CompanyItem2'
+      relationships:
+        type: object
+        properties:
+          owner:
+            type: object
+            properties:
+              meta:
                 type: object
-                properties:
-                  id:
-                    type: string
-                    maxLength: 255
-                  type:
-                    type: string
-                    maxLength: 255
-                    description: Type of the resource
-                    enum:
-                      - transaction
+          operator:
+            type: object
+            properties:
+              meta:
+                type: object
+          address:
+            type: object
+            properties:
+              meta:
+                type: object
+          default_warehouse:
+            type: object
+            properties:
+              meta:
+                type: object
+          pos:
+            type: object
+            properties:
+              meta:
+                type: object
+      meta:
+        type: object
+        properties:
+          created_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
     required:
       - attributes
   CompanyItem:
+    type: object
+    required:
+    - owner_id
+    - name
+    - legal_name
+    - tax_number
+    - tax_office
+    - campaign
+    - credit_balance
+    - selected_plan_id
+    - subscription_status
+    - pricing_list
+    - trial_period
+    - prst_contact_id
+    - owner_email
+    - e_invoicing_enabled
+    - app_type
+    properties:
+      owner_id:
+        type: string
+      name:
+        type: string
+      legal_name:
+        type: string
+      tax_number:
+        type: string
+      tax_office:
+        type: string
+      campaign:
+        type: string
+      valid_until:
+        type: string
+        format: date
+        readOnly: true
+      selected_plan_id:
+        type: string
+      subscription_status:
+        type: string
+      pricing_list:
+        type: string
+      trial_period:
+        type: string
+      prst_contact_id:
+        type: string
+      owner_email:
+        type: string
+      e_invoicing_enabled:
+        type: string
+      created_at:
+        type: string
+      update_at:
+        type: string
+      last_refund:
+        type: object
+        properties:
+          id:
+            type: integer
+            nullable: true
+          plan_id:
+            type: integer
+          refunded_transaction_id:
+            type: integer
+            nullable: true
+          amount:
+            type: integer
+            nullable: true
+          refunded_at:
+            type: string
+            format: date
+            nullable: true
+      subscription:
+        type: object
+        properties:
+          product:
+            type: string
+            example: parasut
+          status:
+            type: string
+            example: active
+          active_plan_id:
+            type: integer
+          active_plan_end_date:
+            type: string
+            format: date
+          renewal_date:
+            type: string
+            format: date
+      mukellefco_selected_plan_id:
+        type: string
+  CompanyItem2:
     type: object
     required:
     - owner_id
@@ -2065,26 +2439,150 @@ definitions:
         type: string
         format: date
         readOnly: true
-      campaign:
-        type: string
       credit_balance:
         type: integer
-      selected_plan_id:
-        type: string
-      subscription_status:
-        type: string
-      pricing_list:
-        type: string
-      trial_period:
-        type: string
-      prst_contact_id:
-        type: string
-      owner_email:
-        type: string
       e_invoicing_enabled:
         type: string
-      app_type:
+      created_at:
         type: string
+      update_at:
+        type: string
+      allowed_inspection_at:
+        type: string
+      app_url:
+        type: string
+      occupation_field:
+        type: string
+      district:
+        type: string
+      city:
+        type: string
+      e_invoice_vkn:
+        type: string
+      mersis_no:
+        type: string
+      trade_registry_number:
+        type: string
+      display_exchange_rate_in_offer_pdf:
+        type: boolean
+      used_app:
+        type: string
+      primary_job:
+        type: string
+      e_invoicing_activated_at:
+        type: string
+      e_archiving_activated_at:
+        type: string
+      e_smm_activated_at:
+        type: string
+      e_archiving_only_activated_at:
+        type: string
+      e_despatch_activated_at:
+        type: string
+      employee_id:
+        type: string
+      payment_with_akbank_enabled:
+        type: boolean
+      can_upload_signature:
+        type: boolean
+      operator_id:
+        type: string
+      invoicing_preferences:
+        type: object
+      logo_url:
+        type: string
+      accessible:
+        type: boolean
+      inspectable:
+        type: boolean
+      inventory_enabled:
+        type: boolean
+      e_commerce_enabled:
+        type: boolean
+      e_archiving_enabled:
+        type: boolean
+      e_archiving_only_enabled:
+        type: boolean
+      e_smm_enabled:
+        type: boolean
+      e_despatch_enabled:
+        type: boolean
+      sales_offer_enabled:
+        type: boolean
+      export_invoice_enabled:
+        type: boolean
+      using_sales_receipt:
+        type: boolean
+      using_multiple_warehouses:
+        type: boolean
+      using_variant:
+        type: boolean
+      using_emikro_einvoice:
+        type: boolean
+      e_invoicing_waiting:
+        type: boolean
+      e_archiving_only_waiting:
+        type: boolean
+      has_iyzico_integration:
+        type: boolean
+      logo:
+        type: object
+      signature:
+        type: object
+      e_invoicing_order_details_enabled:
+        type: boolean
+      email_tx_import_enabled:
+        type: boolean
+      bank_sync_setup_is_bankasi_enabled:
+        type: boolean
+      bank_sync_setup_ing_bank_enabled:
+        type: boolean
+      bank_sync_setup_akbank_enabled:
+        type: boolean
+      bank_sync_setup_denizbank_enabled:
+        type: boolean
+      bank_sync_setup_kuveytturk_enabled:
+        type: boolean
+      bank_sync_setup_teb_enabled:
+        type: boolean
+      bank_sync_setup_finansbank_enabled:
+        type: boolean
+      bank_sync_setup_fibabanka_enabled:
+        type: boolean
+      bank_sync_setup_albaraka_enabled:
+        type: boolean
+      bank_sync_setup_ornekbank_enabled:
+        type: boolean
+      bank_sync_setup_yapikredi_enabled:
+        type: boolean
+      bank_sync_setup_vakifbank_enabled:
+        type: boolean
+      bank_sync_setup_enpara_enabled:
+        type: boolean
+      bank_sync_setup_garanti_enabled:
+        type: boolean
+      bank_sync_setup_ziraat_bankasi_enabled:
+        type: boolean
+      bank_sync_setup_halkbank_enabled:
+        type: boolean
+      multiple_bank_integration_enabled:
+        type: boolean
+      e_commerce_integration_enabled:
+        type: boolean
+      fibabanka_credit_application_enabled:
+        type: boolean
+      using_emikro_services:
+        type: boolean
+      inbound_edocument_page_enabled:
+        type: boolean
+      batch_updated_vat_rates:
+        type: boolean
+      invoice_note_enabled:
+        type: boolean
+      has_odeal_integration:
+        type: boolean
+      pending_qr_code_migration:
+        type: boolean
   DealerTransaction:
     type: object
     properties:
@@ -2161,6 +2659,15 @@ definitions:
           - plans
       attributes:
         $ref: '#/definitions/PlanItem'
+      meta:
+        type: object
+        properties:
+          created_at:
+            type: string
+            format: date-time
+          updated_at:
+            type: string
+            format: date-time
     required:
       - attributes
   PlanItem:
@@ -2168,6 +2675,10 @@ definitions:
     required:
     - id
     properties:
+      created_at:
+        type: string
+      updated_at:
+        type: string
       id:
         type: integer
         example: 15
@@ -2180,6 +2691,8 @@ definitions:
       can_change_selected_plan:
         type: boolean
       status:
+        type: string
+      product:
         type: string
   CreateCompanyItem:
     type: object
