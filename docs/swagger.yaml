@@ -2719,7 +2719,7 @@ definitions:
         type: string
       type:
         type: string
-        enum: [ParasutUser, MikroXUser, AsistUser]
+        enum: [ParasutUser, BizmuUser, AsistUser]
   CreateCompanyCompanyInfoItem:
     type: object
     required:
@@ -2738,7 +2738,7 @@ definitions:
           - in_trial || subscription || order
       accountant_email:
         type: string
-        enum: [ParasutUser, MikroXUser, AsistUser]
+        enum: [ParasutUser, BizmuUser, AsistUser]
       access:
         type: string
         enum: [ro, rw]
